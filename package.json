@@ -1,0 +1,23 @@
+{
+  "name": "possg",
+  "version": "0.0.1",
+  "description": "A very simple SSG for blog",
+  "type": "module",
+  "main": "app.mjs",
+  "scripts": {
+    "start": "node ./app.mjs"
+  },
+  "bin":{
+    "cms": "./cms.mjs"
+  },
+  "author": "D.F.Mac.@TripArts Music",
+  "license": "MIT",
+  "dependencies": {
+    "basic-auth": "^2.0.1",
+    "cors": "^2.8.5",
+    "date-utils": "^1.2.21",
+    "dotenv": "^17.2.3",
+    "ejs": "^4.0.1",
+    "express": "^4.18.1"
+  }
+}

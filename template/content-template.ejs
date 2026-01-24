@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    .layout { display: flex; min-height: 100vh; }
+    nav {
+      width: 260px;
+      border-right: 1px solid #ddd;
+      padding: 16px;
+      box-sizing: border-box;
+      background: #fafafa;
+    }
+    main {
+      flex: 1;
+      padding: 32px;
+    }
+    h1 { margin-top: 0; }
+    ul { padding-left: 16px; }
+    li { margin-bottom: 6px; }
+    .year { font-weight: bold; margin-top: 12px; }
+    footer { margin-top: 48px; color: #666; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <nav>
+    <% if (nav.prevYear) { %>
+      <div class="year">
+        <a href="<%= nav.prevYear.link %>"><%= nav.prevYear.year %></a>
+      </div>
+    <% } %>
+
+    <div class="year"><%= nav.currentYear %></div>
+    <ul>
+      <% nav.currentYearArticles.forEach(a => { %>
+        <li>
+          <% if (a.id === currentId) { %>
+            <strong><%= a.date %> <%= a.title %></strong>
+          <% } else { %>
+            <a href="<%= a.link %>"><%= a.date %> <%= a.title %></a>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+
+    <% if (nav.nextYear) { %>
+      <div class="year">
+        <a href="<%= nav.nextYear.link %>"><%= nav.nextYear.year %></a>
+      </div>
+    <% } %>
+  </nav>
+
+  <main>
+    <h1><%= title %></h1>
+    <article>
+      <%- content %>
+    </article>
+    <footer>
+      <p><%= datetime %></p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>
