@@ -1,2 +1,2 @@
 # possg
-A very simple SSG for blog
+A very simple SSG for blog.
