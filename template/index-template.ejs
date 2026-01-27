@@ -85,6 +85,23 @@ footer {
   text-decoration: none;
   color: inherit;
 }
+.pager{
+  width:100%;
+  height:30px;
+  text-align:center;
+}
+.pager a{
+  display: inline-block;
+  height:30px;
+  line-height: 30px;
+  vertical-align: middle;
+  font-size:16px;
+  padding:0 10px;
+  background-color:skyblue;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+}
 @media screen and (min-width: 680px) {
   .listSize { 
     width:640px;
@@ -122,6 +139,19 @@ footer {
   </div>
 </article>
 </main>
+<nav class="pager">
+  <% if (prevPage) { %>
+    <a href="<%= prevPage === 1 ? 'index.html' : `index-${prevPage}.html` %>">
+      ← 新しい記事へ
+    </a>
+  <% } %>
+
+  <% if (nextPage) { %>
+    <a href="index-<%= nextPage %>.html">
+      古い記事へ →
+    </a>
+  <% } %>
+</nav>
 <footer><%= footertext %> / gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></footer>
 
 <% if (gaid) { %>

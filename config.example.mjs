@@ -33,7 +33,8 @@ const config = {
   "GA_ID":"G-1234567890",
   "BLOGTITLE": "シンプルBlog",
   "FOOTERTEXT": "type your credit",
-  "BLOGDESC": "ここは秘密のBlogです。"
+  "BLOGDESC": "ここは秘密のBlogです。",
+  "INDEX_PAGE_SIZE":10
 };
 
 export default config;
