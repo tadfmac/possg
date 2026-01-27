@@ -18,6 +18,7 @@ Usage:
   cms unpublish <key>
   cms remove <key>
   cms removeall
+  cms buildall
 `);
   process.exit(1);
 }
@@ -56,7 +57,7 @@ try {
       if (!key) usage();
 
       const ok = await confirm(`記事 ${key} を公開しますか？ (yes/no): `);
-      if (!ok) console.log("Canceled."); break;
+      if (!ok) {console.log("Canceled."); break;}
 
       await core.publish(key, true);
       console.log(`✔ published: ${key}`);
@@ -69,7 +70,7 @@ try {
       if (!key) usage();
 
       const ok = await confirm(`記事 ${key} を非公開に戻しますか？ (yes/no): `);
-      if (!ok) console.log("Canceled."); break;
+      if (!ok) {console.log("Canceled."); break;}
 
       await core.publish(key, false);
       console.log(`✔ unpublished: ${key}`);
@@ -82,7 +83,7 @@ try {
       if (!key) usage();
 
       const ok = await confirm(`記事 ${key} を削除しますか？ (yes/no): `);
-      if (!ok) console.log("Canceled."); break;
+      if (!ok) {console.log("Canceled."); break;}
 
       await core.remove(key);
       console.log(`✔ removed: ${key}`);
@@ -92,13 +93,21 @@ try {
     /* ----- removeall ----- */
     case "removeall": {
       const ok = await confirm("⚠ 全記事を削除します。本当によろしいですか？ (yes/no): ");
-      if (!ok) console.log("Canceled."); break;
+      if (!ok) {console.log("Canceled."); break;}
 
       await core.removeAll();
       console.log("✔ all articles removed");
       break;
     }
 
+    case "buildall": {
+      const ok = await confirm("⚠ 全記事のhtmlを再生成します。よろしいですか？ (yes/no): ");
+      if (!ok) {console.log("Canceled."); break;}
+
+      await core.buildAll();
+      console.log("✔ all html rebuilt");
+      break;
+    }
     default:
       usage();
   }

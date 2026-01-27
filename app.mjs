@@ -17,6 +17,13 @@ const dirname = path.dirname(new URL(import.meta.url).pathname);
 const LISTEN_IP = "127.0.0.1";
 const LISTEN_PORT = 3550;
 
+const ROOT_PATH = process.cwd();
+const STAGING_WWW_PATH = path.join(ROOT_PATH,config.WWW_DIR,config.STAGING_DIR);
+const CONTENT_WWW_PATH = path.join(ROOT_PATH,config.WWW_DIR,config.CONTENT_DIR);
+
+console.log("STAGING_WWW_PATH="+STAGING_WWW_PATH);
+console.log("CONTENT_WWW_PATH="+CONTENT_WWW_PATH);
+
 let webServer;
 let app;
 
@@ -34,10 +41,6 @@ try {
 } catch (err) {
   console.error(err);
 }
-
-const ROOT_PATH = process.cwd();
-const STAGING_WWW_PATH = path.join(ROOT_PATH,config.WWW_DIR,config.STAGING_DIR);
-const CONTENT_WWW_PATH = path.join(ROOT_PATH,config.WWW_DIR,config.CONTENT_DIR);
 
 function basicAuth(req, res, next){
   const user = auth(req);

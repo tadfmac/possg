@@ -1,32 +1,149 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title><%= title %></title>
-  <style>
-    body { margin: 0; font-family: sans-serif; }
-    .layout { display: flex; min-height: 100vh; }
-    nav {
-      width: 260px;
-      border-right: 1px solid #ddd;
-      padding: 16px;
-      box-sizing: border-box;
-      background: #fafafa;
-    }
-    main {
-      flex: 1;
-      padding: 32px;
-    }
-    h1 { margin-top: 0; }
-    ul { padding-left: 16px; }
-    li { margin-bottom: 6px; }
-    .year { font-weight: bold; margin-top: 12px; }
-    footer { margin-top: 48px; color: #666; font-size: 0.9em; }
-  </style>
+<meta charset="UTF-8" />
+<% if (meta.tags) { %>
+<meta name="keywords" content="<%= meta.tags.join(', ') %>">
+<% } %>
+<title><%= title %></title>
+<style>
+*{
+  box-sizing: border-box;
+}
+body { margin: 0; font-family: sans-serif; }
+.layout { 
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+nav {
+  width: 100%;
+  border-right: 1px solid #ddd;
+  padding: 16px;
+  background: #fafafa;
+}
+main {
+  flex: 1;
+  padding: 32px;
+  width:100%;
+}
+h1 { margin-top: 0; }
+ul { padding-left: 16px; }
+li { margin-bottom: 6px; }
+.year { 
+  font-weight: bold;
+  margin-top: 20px; 
+  margin-bottom:10px;
+}
+.tag { 
+  border-radius: 10px;
+  background-color: pink;
+  height:20px;
+  padding:0px 10px;
+  margin:0px 5px;
+  font-size:16px;
+  vertical-align: middle;
+  line-height: 20px;
+}
+#infoWrap {
+  display:flex;
+  width:100%;
+  height:20px;
+  margin-bottom:40px;
+}
+#datetime {
+  line-height: 20px;
+  font-size:16px;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.navWrap{
+  padding:5px;
+  display:flex;
+  width:100%;
+  flex-direction: column;
+  border-radius:5px;
+  margin-bottom:10px;
+}
+img {
+  width:100%;
+}
+.wborder{
+  border:1px solid pink;
+}
+header{
+  width:100%;
+  background-color:darkgray;
+  color:white;
+  margin-bottom:20px;
+  padding:0px 20px;
+  line-height: 30px;
+  font-size:16px;
+  vertical-align: middle;
+}
+footer {
+  margin-top: 48px;
+  color: #666;
+  font-size: 0.9em;
+  width:100%;
+  text-align: center;
+}
+.nohighlight{
+  text-decoration: none;
+  color: inherit;
+}
+figure {
+  margin: 1.5em 0;
+  text-align: center;
+}
+figure img {
+  max-width: 100%;
+  height: auto;
+}
+figure figcaption {
+  margin-top: 0.4em;
+  font-size: 0.85em;
+  color: #666;
+}
+@media screen and (min-width: 768px) {
+  .layout { 
+    display: flex;
+    min-height: 100vh;
+    flex-direction: row;
+  }
+  main {
+    flex: 1;
+    padding: 32px;
+    width:calc(100% - 260px);
+  }
+  nav {
+    width: 200px;
+    border-right: 1px solid #ddd;
+    padding: 16px;
+    background: #fafafa;
+  }
+}
+</style>
 </head>
 <body>
+<header><a class="nohighlight" href="<%= toplink %>"><%= blogtitle %></a></header>
 <div class="layout">
+  <main>
+    <h1><%= title %></h1>
+    <div id="infoWrap">
+      <div id="datetime"><%= datetime %></div>
+      <% if (meta.tags) { %>
+        <% meta.tags.forEach((tag) => { %>
+        <div class="tag"><%= tag %></div>
+        <% }); %>
+      <% } %>
+    </div>
+    <article>
+      <%- content %>
+    </article>
+  </main>
   <nav>
+    <h3>他の記事へ</h3>
     <% if (nav.prevYear) { %>
       <div class="year">
         <a href="<%= nav.prevYear.link %>"><%= nav.prevYear.year %></a>
@@ -34,17 +151,21 @@
     <% } %>
 
     <div class="year"><%= nav.currentYear %></div>
-    <ul>
-      <% nav.currentYearArticles.forEach(a => { %>
-        <li>
-          <% if (a.id === currentId) { %>
-            <strong><%= a.date %> <%= a.title %></strong>
-          <% } else { %>
-            <a href="<%= a.link %>"><%= a.date %> <%= a.title %></a>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
+    <% nav.currentYearArticles.forEach(a => { %>
+      <% if (a.id === currentId) { %>
+        <div class="navWrap wborder">
+          <div class="navDate"><%= a.date %> [本記事]</div>
+          <div class="navTitile"><%= a.title %></div>
+        </div>
+      <% } else { %>
+        <a href="<%= a.link %>">
+        <div class="navWrap">
+          <div class="navDate"><%= a.date %></div>
+          <div class="navTitile"><%= a.title %></div>
+        </div>
+        </a>
+      <% } %>
+    <% }) %>
 
     <% if (nav.nextYear) { %>
       <div class="year">
@@ -52,16 +173,18 @@
       </div>
     <% } %>
   </nav>
-
-  <main>
-    <h1><%= title %></h1>
-    <article>
-      <%- content %>
-    </article>
-    <footer>
-      <p><%= datetime %></p>
-    </footer>
-  </main>
 </div>
+<footer><%= footertext %> / gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></footer>
+
+<% if (gaid) { %>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= gaid %>"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '<%= gaid %>');
+  </script>
+<% } %>
 </body>
 </html>

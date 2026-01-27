@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title><%= blogtitle %></title>
+<style>
+*{
+  box-sizing: border-box;
+}
+body { 
+  margin: 0;
+  font-family:sans-serif;
+  width: 100%;
+  height:100%;
+}
+main {
+  flex: 1;
+  padding: 20px;
+  width:100%;
+}
+h1 { margin-top: 0; }
+header{
+  width:100%;
+  background-color:darkgray;
+  color:white;
+  margin-bottom:20px;
+  padding:0px 20px;
+  line-height: 30px;
+  font-size:16px;
+  vertical-align: middle;
+}
+footer {
+  margin-top: 48px;
+  color: #666;
+  font-size: 0.9em;
+  width:100%;
+  text-align: center;
+}
+#listWrap{
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+.indexlist{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  align-items:flex-start;
+  align-content:flex-start;
+  min-height:100%;
+}
+.indexitem{
+  width:300px;
+  min-width:200px;
+  height:auto;
+  border-radius: 5px;
+  border:1px solid gray;
+  padding:20px;
+  margin:10px;
+  cursor:pointer;
+}
+.indexitem:hover{
+  border:2px solid black;
+}
+#desc{
+  width: 100%;
+  font-size: 18px;
+  text-align: center;
+}
+.itemdate{
+  font-size:0.9em;
+  width:100%;
+  font-size:12px;
+  color:blue;
+}
+.itemtitle{
+  margin-top:0.5em;
+  font-size:1.2em;
+  font-weight: bold;
+}
+.listSize{
+  width:320px;
+}
+.nohighlight{
+  text-decoration: none;
+  color: inherit;
+}
+@media screen and (min-width: 680px) {
+  .listSize { 
+    width:640px;
+  }
+}
+@media screen and (min-width: 1000px) {
+  .listSize { 
+    width:960px;
+  }
+}
+@media screen and (min-width: 1320px) {
+  .listSize { 
+    width:1280px;
+  }
+}
+</style>
+</head>
+<body>
+<header><%= blogtitle %></header>
+<article id="descWrap">
+  <p id="desc"> <%- blogdesc.replace(/\n/g, "<br>") %></p>
+</article>
+<main>
+<article id="listWrap">
+  <div class="indexlist listSize">
+    <% items.forEach(item => { %>
+      <a class="nohighlight" href="<%= item.link %>">
+        <div class="indexitem">
+          <div class="itemdate"><%= item.datetime %></div>
+          <div class="itemtitle"><%= item.title %></div>
+          <div class="bodytext"><p><%= item.bodytext %></p></div>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+</article>
+</main>
+<footer><%= footertext %> / gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></footer>
+
+<% if (gaid) { %>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= gaid %>"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '<%= gaid %>');
+  </script>
+<% } %>
+</body>
+</html>
