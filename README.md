@@ -50,6 +50,7 @@ possg-core 導入後に下記実施します。
 ```
 cd possg
 npm link possg-core
+npm link
 ```
 
 ### 5. (オプション) ホスティングサーバ起動
