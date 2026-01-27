@@ -13,12 +13,12 @@ const [,, command, ...args] = process.argv;
 function usage() {
   console.log(`
 Usage:
-  cms import <zip>
-  cms publish <key>
-  cms unpublish <key>
-  cms remove <key>
-  cms removeall
-  cms buildall
+  possg import <zip>
+  possg publish <key>
+  possg unpublish <key>
+  possg remove <key>
+  possg removeall
+  possg buildall
 `);
   process.exit(1);
 }

@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node ./app.mjs"
   },
-  "bin":{
-    "cms": "./cms.mjs"
+  "bin": {
+    "possg": "./possg.mjs"
   },
   "author": "D.F.Mac.@TripArts Music",
   "license": "MIT",
