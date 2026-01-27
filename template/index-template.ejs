@@ -142,13 +142,13 @@ footer {
 <nav class="pager">
   <% if (prevPage) { %>
     <a href="<%= prevPage === 1 ? 'index.html' : `index-${prevPage}.html` %>">
-      ← 新しい記事へ
+      ← Newer posts
     </a>
   <% } %>
 
   <% if (nextPage) { %>
     <a href="index-<%= nextPage %>.html">
-      古い記事へ →
+      Older posts →
     </a>
   <% } %>
 </nav>
