@@ -7,17 +7,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: #ccc; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #FFFFFF; color: #ccc; overflow: hidden; }
         
         header { 
-            height: 45px; background: #333333; color: #ffffff; display: flex; 
+            height: 45px; background: #FFFFFF; color: #000000; display: flex; 
             align-items: center; justify-content: space-between; padding: 0 20px; 
             font-size: 16px; font-weight: bold; border-bottom: 1px solid #444;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100;
         }
 
         #save-template-btn {
-            background: #444; border: 1px solid #666; color: #ccc; padding: 4px 12px;
+            background: #FFF; border: 1px solid #666; color: #000; padding: 4px 12px;
             font-size: 12px; cursor: pointer; border-radius: 4px;
         }
         #save-template-btn:hover { background: #555; color: #fff; }
@@ -40,7 +40,7 @@
         .del-btn { background: #e81123; padding: 2px 6px; }
         .upload-trigger { background: #4a4a4a; margin-bottom: 5px; width: 100%; }
         
-        .footer { height: 60px; display: flex; align-items: center; justify-content: center; background: #252526; border-top: 1px solid #333; padding: 0 10px; }
+        .footer { height: 60px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-top: 1px solid #333; padding: 0 10px; }
         #download-btn { background: #0e639c; width: 100%; max-width: 400px; height: 40px; font-size: 14px; }
 
         /* Ace */
@@ -51,6 +51,14 @@
         .ace_yaml-sep, .ace_yaml-list-marker { color: #c586c0 !important; font-weight: bold; }
         .ace_yaml-key { color: #9cdcfe !important; }
         .ace_yaml-val-str { color: #ce9178 !important; }
+        footer{
+          color:#666;
+          font-size:12px;
+          height:20px;
+          line-height: 20px;
+          vertical-align: middle;
+          text-align: center;
+        }
 
         @media screen and (max-width: 768px) {
             .main-content { flex-direction: column; }
@@ -85,10 +93,10 @@
         </div>
     </div>
     <div class="footer">
-        <button id="download-btn" class="btn">ZIPをダウンロード保存</button>
+        <button id="download-btn" class="btn">ZIPをダウンロード</button>
     </div>
+    <footer>(c)2026 by D.F.Mac.@TripArts Music</footer>
 </div>
-
 <script>
     // --- オプション設定 ---
     const isEnableYamlImage = false; // true にするとYAML画像管理が有効になります
