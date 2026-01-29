@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>possg editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #1e1e1e; color: #ccc; overflow: hidden; }
+        
+        header { 
+            height: 45px; background: #333333; color: #ffffff; display: flex; 
+            align-items: center; justify-content: space-between; padding: 0 20px; 
+            font-size: 16px; font-weight: bold; border-bottom: 1px solid #444;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100;
+        }
+
+        #save-template-btn {
+            background: #444; border: 1px solid #666; color: #ccc; padding: 4px 12px;
+            font-size: 12px; cursor: pointer; border-radius: 4px;
+        }
+        #save-template-btn:hover { background: #555; color: #fff; }
+
+        .container { display: flex; flex-direction: column; height: calc(100vh - 45px); }
+        .main-content { display: flex; flex: 1; overflow: hidden; flex-direction: row; }
+        #editor { flex: 1; }
+
+        .sidebar { width: 260px; background: #252526; border-left: 1px solid #333; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; }
+        .pane { flex: 1; display: flex; flex-direction: column; min-height: 0; margin-bottom: 15px; }
+        /* YAMLペインが消えた時にMDペインを広げるための設定 */
+        .pane:last-child { margin-bottom: 0; }
+        
+        .pane h3 { font-size: 13px; margin: 0 0 8px 0; color: #9cdcfe; border-bottom: 1px solid #333; padding-bottom: 4px; }
+        .file-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; background: #1e1e1e; border-radius: 4px; }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #37373d; padding: 6px 8px; margin: 4px; border-radius: 3px; font-size: 11px; }
+        .file-item span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; margin-right: 5px; }
+        
+        .btn { height: 32px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+        .del-btn { background: #e81123; padding: 2px 6px; }
+        .upload-trigger { background: #4a4a4a; margin-bottom: 5px; width: 100%; }
+        
+        .footer { height: 60px; display: flex; align-items: center; justify-content: center; background: #252526; border-top: 1px solid #333; padding: 0 10px; }
+        #download-btn { background: #0e639c; width: 100%; max-width: 400px; height: 40px; font-size: 14px; }
+
+        /* Ace */
+        .ace_invisible_tab { color: rgba(255, 255, 255, 0.2) !important; }
+        .ace_invisible_eol { display: inline !important; position: relative !important; width: 0 !important; color: transparent !important; }
+        .ace_invisible_eol::after { content: "⏎"; position: absolute; left: 2px; color: rgba(255, 255, 255, 0.15); visibility: visible; font-family: 'JetBrains Mono', monospace; }
+        .ace_zenkaku-space { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2); }
+        .ace_yaml-sep, .ace_yaml-list-marker { color: #c586c0 !important; font-weight: bold; }
+        .ace_yaml-key { color: #9cdcfe !important; }
+        .ace_yaml-val-str { color: #ce9178 !important; }
+
+        @media screen and (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .sidebar { width: 100%; height: 300px; border-left: none; border-top: 1px solid #333; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span>possg editor</span>
+    <button id="save-template-btn">テンプレートとして保存</button>
+</header>
+
+<div class="container">
+    <div class="main-content">
+        <div id="editor"></div>
+        
+        <div class="sidebar">
+            <div class="pane" id="yaml-pane">
+                <h3>YAML画像リスト</h3>
+                <input type="file" id="yaml-image-input" accept="image/*" multiple style="display:none">
+                <button id="yaml-upload-btn" class="btn upload-trigger">＋ YAML画像を選択</button>
+                <ul id="yaml-file-list" class="file-list"></ul>
+            </div>
+            <div class="pane" id="md-pane">
+                <h3>Markdown画像リスト</h3>
+                <input type="file" id="md-image-input" accept="image/*" multiple style="display:none">
+                <button id="md-upload-btn" class="btn upload-trigger">＋ MD画像を選択</button>
+                <ul id="md-file-list" class="file-list"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <button id="download-btn" class="btn">ZIPをダウンロード保存</button>
+    </div>
+</div>
+
+<script>
+    // --- オプション設定 ---
+    const isEnableYamlImage = false; // true にするとYAML画像管理が有効になります
+    // ---------------------
+
+    let mdFiles = new Map();
+    let yamlFiles = new Map();
+
+    const DEFAULT_CONTENT = `---
+key: zip_filename
+title: 記事のタイトル
+datetime: "20251017 00:00"
+tags:
+  - 日記
+---
+記事の内容をここにかく`;
+
+    function setupMode() {
+        ace.define("ace/mode/custom_md_yaml_highlight_rules", ["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+            var oop = require("../lib/oop");
+            var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+            var CustomHighlightRules = function() {
+                this.$rules = {
+                    "start": [{ token: "yaml-sep", regex: "^---$", next: "yaml" }, { include: "markdown" }],
+                    "yaml": [
+                        { token: "yaml-sep", regex: "^---$", next: "markdown" },
+                        { token: "yaml-list-marker", regex: "^\\s*-\\s" },
+                        { token: "yaml-key", regex: "[^\\s:]+(?=:)" },
+                        { token: "yaml-val-str", regex: '".*?"' },
+                        { token: "zenkaku-space", regex: "　" }
+                    ],
+                    "markdown": [
+                        { token: "md-header", regex: "^#.*$" },
+                        { token: "md-list", regex: "^\\s*([\\*\\+-]|\\d+\\.)\\s" },
+                        { token: ["text", "md-link-text", "text", "md-link-url", "text"], regex: "(\\[)(.*?)(\\]\\()(.*?)(\\))" },
+                        { token: "zenkaku-space", regex: "　" }
+                    ]
+                };
+            };
+            oop.inherits(CustomHighlightRules, TextHighlightRules);
+            exports.CustomHighlightRules = CustomHighlightRules;
+        });
+        ace.define("ace/mode/custom_md_yaml", ["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/custom_md_yaml_highlight_rules"], function(require, exports, module) {
+            var oop = require("../lib/oop");
+            var TextMode = require("./text").Mode;
+            var CustomHighlightRules = require("./custom_md_yaml_highlight_rules").CustomHighlightRules;
+            var Mode = function() { this.HighlightRules = CustomHighlightRules; };
+            oop.inherits(Mode, TextMode);
+            exports.Mode = Mode;
+        });
+    }
+
+    setupMode();
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/custom_md_yaml");
+    editor.setOptions({ fontFamily: "'JetBrains Mono', monospace", fontSize: "16px", showInvisibles: true, wrap: true, useSoftTabs: false });
+
+    // 初期化処理
+    const savedTemplate = localStorage.getItem('article_editor_template');
+    editor.setValue(savedTemplate || DEFAULT_CONTENT, -1);
+
+    // オプションに応じたUI制御
+    if (!isEnableYamlImage) {
+        document.getElementById("yaml-pane").style.display = "none";
+    }
+
+    document.getElementById("save-template-btn").onclick = () => {
+        if (confirm("現在の内容を初期テンプレートとして保存しますか？")) {
+            localStorage.setItem('article_editor_template', editor.getValue());
+            alert("保存しました。");
+        }
+    };
+
+    function updateLists() {
+        renderList("md-file-list", mdFiles, "removeMdFile");
+        if (isEnableYamlImage) {
+            renderList("yaml-file-list", yamlFiles, "removeYamlFile");
+        }
+    }
+
+    function renderList(id, map, delFuncName) {
+        const list = document.getElementById(id);
+        list.innerHTML = "";
+        map.forEach((file, name) => {
+            const li = document.createElement("li");
+            li.className = "file-item";
+            li.innerHTML = `<span>${name}</span><button class="del-btn btn" onclick="${delFuncName}('${name}')">×</button>`;
+            list.appendChild(li);
+        });
+    }
+
+    window.removeMdFile = function(name) {
+        mdFiles.delete(name);
+        const tag = `![${name}](${name})`;
+        editor.setValue(editor.getValue().split(tag).join(""), -1);
+        updateLists();
+    };
+
+    function insertMdImage(file) {
+        mdFiles.set(file.name, file);
+        const session = editor.getSession();
+        const cursor = editor.getCursorPosition();
+        const lines = editor.getValue().split("\n");
+        let yamlEnd = -1, sepCount = 0;
+        for (let i = 0; i < lines.length; i++) { if (lines[i].trim() === "---") { sepCount++; if (sepCount === 2) { yamlEnd = i; break; } } }
+        const tag = `![${file.name}](${file.name})`;
+        if (cursor.row <= yamlEnd || yamlEnd === -1) {
+            session.insert({ row: yamlEnd !== -1 ? yamlEnd + 1 : lines.length, column: 0 }, tag + "\n");
+        } else {
+            const line = session.getLine(cursor.row);
+            if (line.trim() === "") session.insert(cursor, tag);
+            else session.insert({ row: cursor.row, column: line.length }, "\n" + tag);
+        }
+        updateLists();
+    }
+
+    window.addYamlImage = function(file) {
+        if (!isEnableYamlImage) return;
+        if (yamlFiles.has(file.name)) return;
+        yamlFiles.set(file.name, file);
+        let content = editor.getValue();
+        let lines = content.split("\n");
+        let firstSep = -1, secondSep = -1;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].trim() === "---") {
+                if (firstSep === -1) firstSep = i;
+                else { secondSep = i; break; }
+            }
+        }
+        const entry = `  - name: ${file.name}\n    alt: ""`;
+        if (firstSep !== -1 && secondSep !== -1) {
+            let yamlLines = lines.slice(firstSep + 1, secondSep);
+            let imagesIndex = yamlLines.findIndex(l => l.trim() === "images:");
+            if (imagesIndex === -1) {
+                lines.splice(secondSep, 0, "images:", entry);
+            } else {
+                lines.splice(firstSep + 1 + imagesIndex + 1, 0, entry);
+            }
+        }
+        editor.setValue(lines.join("\n"), -1);
+        updateLists();
+    };
+
+    window.removeYamlFile = function(name) {
+        if (!isEnableYamlImage) return;
+        yamlFiles.delete(name);
+        let content = editor.getValue();
+        const entryRegex = new RegExp(`\\s+-\\s+name\\s*:\\s*${name.replace(/\./g, '\\.')}\\s*\\n\\s+alt\\s*:\\s*".*?"\\n?`, "g");
+        content = content.replace(entryRegex, "");
+        editor.setValue(content, -1);
+        updateLists();
+    };
+
+    document.getElementById("md-upload-btn").onclick = () => document.getElementById("md-image-input").click();
+    document.getElementById("md-image-input").onchange = (e) => Array.from(e.target.files).forEach(insertMdImage);
+    
+    document.getElementById("yaml-upload-btn").onclick = () => document.getElementById("yaml-image-input").click();
+    document.getElementById("yaml-upload-btn").addEventListener('click', () => {
+        if(isEnableYamlImage) document.getElementById("yaml-image-input").click();
+    });
+    document.getElementById("yaml-image-input").onchange = (e) => Array.from(e.target.files).forEach(addYamlImage);
+
+    const editorDiv = document.getElementById("editor");
+    editorDiv.addEventListener("dragover", (e) => e.preventDefault());
+    editorDiv.addEventListener("drop", (e) => {
+        e.preventDefault();
+        Array.from(e.dataTransfer.files).forEach(insertMdImage);
+    });
+
+    document.getElementById("download-btn").onclick = async () => {
+        const content = editor.getValue();
+        const keyMatch = content.match(/key:\s*["']?([^"'\n]+)["']?/);
+        const folderName = (keyMatch && keyMatch[1].trim() !== "" ? keyMatch[1].trim() : "untitled").replace(/[\\\/:*?"<>|]/g, "");
+        const zip = new JSZip();
+        const root = zip.folder(folderName);
+        root.file("index.md", content);
+        mdFiles.forEach((f, n) => root.file(n, f));
+        if (isEnableYamlImage) {
+            yamlFiles.forEach((f, n) => root.file(n, f));
+        }
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = `${folderName}.zip`; a.click();
+        URL.revokeObjectURL(url);
+    };
+</script>
+</body>
+</html>

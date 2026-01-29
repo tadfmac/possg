@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>画像サイズ合わせ込みツール</title>
+<style>
+  body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+    padding: 20px;
+  }
+  #controls {
+    margin-bottom: 8px;
+  }
+  #dropZone {
+    width: 640px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border: 2px dashed #999;
+    background: #fff;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  input {
+    width: 80px;
+  }
+  button {
+    padding: 6px 14px;
+    margin-left: 6px;
+  }
+  #dropHint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 13px;
+    pointer-events: none;
+  }
+  canvas.grab {
+    cursor: grab;
+  }
+  canvas.grabbing {
+    cursor: grabbing;
+  }
+  #controls input[type="radio"] {
+    width: 20px;
+  }
+  #controls label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0px;
+    margin-right:20px;
+  }
+  #bcont{
+    margin-top:10px;
+  }
+  footer{
+    font-size: 13px;
+    color:#666;
+    line-height:20px;
+    vertical-align: middle;
+    height:20px;
+    width:100%;
+    text-align: center;
+  }
+  #desc p{
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<h2>画像サイズ合わせ込みツール</h2>
+
+<div id="controls">
+  クロップサイズ:
+  W <input id="clipW" type="number" value="1280">
+  H <input id="clipH" type="number" value="720">
+  <button id="applyClip">設定</button>
+  <div>保存形式
+  <span style="margin-left:12px;">
+    <label><input type="radio" name="format" value="jpeg" checked>JPEG</label>
+    <label><input type="radio" name="format" value="png">PNG</label>
+  </span>
+  </div>
+</div>
+
+<div id="dropZone">
+  <div id="dropHint">ここに画像をドラッグ＆ドロップしてください。</div>
+  <canvas id="canvas" width="640" height="360"></canvas>
+</div>
+<div id="bcont">
+  <button id="cropBtn">トリミング</button>
+  <button id="clearBtn">画像クリア</button>
+</div>
+<article id="desc">
+  <h3>これは何？</h3>
+  <p>画像を特定のサイズに合わせ込むツールです。</p>
+  <p>画像サイズを自動調整しますので、元画像の一部のみを切り取る普通のトリミング用途にはあまり向いていません。<br>特定の画像サイズへリサイズするついでに中心を合わせたい。という用途にご利用ください。</p>
+</article>
+<footer>(c)2026 by D.F.Mac.@TripArts Music</footer>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// const displayScale = 0.5;
+
+let clipOutW = 1280;
+let clipOutH = 720;
+
+let cropRect = {};
+let img = new Image();
+let imgName = "";
+
+let scale = 1;
+let imgX = 0;
+let imgY = 0;
+
+let dragging = false;
+let startX = 0;
+let startY = 0;
+
+let hasImage = false;
+
+function getSelectedFormat() {
+  return document.querySelector('input[name="format"]:checked').value;
+}
+
+function resizeCanvasToDropZone() {
+  const rect = dropZone.getBoundingClientRect();
+
+  // 描画解像度を CSS サイズに合わせる
+  canvas.width = Math.round(rect.width);
+  canvas.height = Math.round(rect.height);
+}
+
+function relayout() {
+  resizeCanvasToDropZone();
+  updateCropRect();
+
+  if (hasImage) {
+    fitImageToCrop();
+  }
+
+  draw();
+}
+
+window.addEventListener("load", () => {
+  relayout();
+  showHintIfEmpty();
+});
+
+window.addEventListener("resize", () => {
+  relayout();
+});
+
+// ---------------- Drag & Drop ----------------
+const dropZone = document.getElementById("dropZone");
+const dropHint = document.getElementById("dropHint");
+
+showHintIfEmpty();
+
+dropZone.addEventListener("dragover", e => e.preventDefault());
+
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
+
+  imgName = file.name;
+  const reader = new FileReader();
+  reader.onload = () => {
+    img.onload = () => {
+      hasImage = true;
+      relayout();
+      showHintIfEmpty(); 
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function showHintIfEmpty() {
+  dropHint.style.display = hasImage ? "none" : "flex";
+
+  canvas.classList.toggle("grab", hasImage);
+  canvas.classList.remove("grabbing");
+}
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  hasImage = false;
+  img.src = "";
+  imgName = "";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  dragging = false;
+  canvas.classList.remove("grab", "grabbing");
+  showHintIfEmpty();
+});
+
+// ---------------- Crop Rect ----------------
+function updateCropRect() {
+  const scaleToCanvas = Math.min(
+    canvas.width / clipOutW,
+    canvas.height / clipOutH
+  );
+
+  const w = clipOutW * scaleToCanvas;
+  const h = clipOutH * scaleToCanvas;
+
+  cropRect = {
+    w,
+    h,
+    x: (canvas.width - w) / 2,
+    y: (canvas.height - h) / 2
+  };
+}
+
+// ---------------- Fit Image (cover, no upscale) ----------------
+function fitImageToCrop() {
+  scale = Math.max(
+    cropRect.w / img.width,
+    cropRect.h / img.height
+  );
+  scale = Math.min(scale, 1);
+
+  imgX = cropRect.x + (cropRect.w - img.width * scale) / 2;
+  imgY = cropRect.y + (cropRect.h - img.height * scale) / 2;
+}
+
+// ---------------- Draw ----------------
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!img.src) return;
+
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  ctx.drawImage(img, imgX, imgY, drawW, drawH);
+
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  ctx.fillRect(0, 0, canvas.width, cropRect.y);
+  ctx.fillRect(0, cropRect.y + cropRect.h, canvas.width, canvas.height);
+  ctx.fillRect(0, cropRect.y, cropRect.x, cropRect.h);
+  ctx.fillRect(
+    cropRect.x + cropRect.w,
+    cropRect.y,
+    canvas.width - (cropRect.x + cropRect.w),
+    cropRect.h
+  );
+
+  ctx.strokeStyle = "#0077ff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cropRect.x, cropRect.y, cropRect.w, cropRect.h);
+}
+
+// ---------------- Mouse Drag ----------------
+canvas.addEventListener("mousedown", e => {
+  if (!img.src) return;
+  dragging = true;
+  startX = e.offsetX;
+  startY = e.offsetY;
+
+  canvas.classList.remove("grab");
+  canvas.classList.add("grabbing");
+});
+
+function stopDragging() {
+  dragging = false;
+  canvas.classList.remove("grabbing");
+  if (img.src) {
+    canvas.classList.add("grab");
+  }
+}
+
+canvas.addEventListener("mouseup", stopDragging);
+canvas.addEventListener("mouseleave", stopDragging);
+
+canvas.addEventListener("mousemove", e => {
+  if (!dragging) return;
+
+  const dx = e.offsetX - startX;
+  const dy = e.offsetY - startY;
+
+  const drawW = img.width * scale;
+  const drawH = img.height * scale;
+
+  if (drawW > cropRect.w) imgX += dx;
+  if (drawH > cropRect.h) imgY += dy;
+
+  if (drawW > cropRect.w) {
+    imgX = Math.min(
+      cropRect.x,
+      Math.max(cropRect.x + cropRect.w - drawW, imgX)
+    );
+  } else {
+    imgX = cropRect.x + (cropRect.w - drawW) / 2;
+  }
+
+  if (drawH > cropRect.h) {
+    imgY = Math.min(
+      cropRect.y,
+      Math.max(cropRect.y + cropRect.h - drawH, imgY)
+    );
+  } else {
+    imgY = cropRect.y + (cropRect.h - drawH) / 2;
+  }
+
+  startX = e.offsetX;
+  startY = e.offsetY;
+  draw();
+});
+
+canvas.addEventListener("mouseup", () => dragging = false);
+canvas.addEventListener("mouseleave", () => dragging = false);
+
+// ---------------- Apply ----------------
+document.getElementById("applyClip").addEventListener("click", () => {
+  clipOutW = +clipW.value;
+  clipOutH = +clipH.value;
+  relayout();
+});
+
+// ---------------- Crop & Save (FIXED) ----------------
+document.getElementById("cropBtn").addEventListener("click", () => {
+  if (!hasImage) return;
+
+  const format = getSelectedFormat(); // "jpeg" or "png"
+
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = clipOutW;
+  outCanvas.height = clipOutH;
+  const outCtx = outCanvas.getContext("2d");
+
+  const srcX = (cropRect.x - imgX) / scale;
+  const srcY = (cropRect.y - imgY) / scale;
+  const srcW = cropRect.w / scale;
+  const srcH = cropRect.h / scale;
+
+  // ---- 背景処理 ----
+  if (format === "jpeg") {
+    // JPEG は透過不可 → 白で塗る
+    outCtx.fillStyle = "#fff";
+    outCtx.fillRect(0, 0, clipOutW, clipOutH);
+  }
+  // PNG の場合は何もしない（透過のまま）
+
+  outCtx.drawImage(
+    img,
+    srcX, srcY, srcW, srcH,
+    0, 0, clipOutW, clipOutH
+  );
+
+  // ---- 保存 ----
+  if (format === "jpeg") {
+    outCanvas.toBlob(
+      blob => {
+        const a = document.createElement("a");
+        const base = imgName.replace(/\.[^/.]+$/, "");
+        a.download = base + "-trim.jpg";
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        URL.revokeObjectURL(a.href);
+      },
+      "image/jpeg",
+      0.9
+    );
+  } else {
+    // PNG（透過保持）
+    outCanvas.toBlob(blob => {
+      const a = document.createElement("a");
+      const base = imgName.replace(/\.[^/.]+$/, "");
+      a.download = base + "-trim.png";
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }, "image/png");
+  }
+});
+
+</script>
+
+</body>
+</html>
