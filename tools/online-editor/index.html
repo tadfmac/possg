@@ -10,7 +10,7 @@
         body, html { margin: 0; padding: 0; height: 100%; background: #FFFFFF; color: #ccc; overflow: hidden; }
         
         header { 
-            height: 45px; background: #FFFFFF; color: #000000; display: flex; 
+            height: 45px; background: #FFCCAA; color: #000000; display: flex; 
             align-items: center; justify-content: space-between; padding: 0 20px; 
             font-size: 16px; font-weight: bold; border-bottom: 1px solid #444;
             box-shadow: 0 2px 5px rgba(0,0,0,0.3); z-index: 100;
@@ -28,7 +28,6 @@
 
         .sidebar { width: 260px; background: #252526; border-left: 1px solid #333; display: flex; flex-direction: column; padding: 10px; box-sizing: border-box; }
         .pane { flex: 1; display: flex; flex-direction: column; min-height: 0; margin-bottom: 15px; }
-        /* YAMLペインが消えた時にMDペインを広げるための設定 */
         .pane:last-child { margin-bottom: 0; }
         
         .pane h3 { font-size: 13px; margin: 0 0 8px 0; color: #9cdcfe; border-bottom: 1px solid #333; padding-bottom: 4px; }
@@ -40,10 +39,9 @@
         .del-btn { background: #e81123; padding: 2px 6px; }
         .upload-trigger { background: #4a4a4a; margin-bottom: 5px; width: 100%; }
         
-        .footer { height: 60px; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border-top: 1px solid #333; padding: 0 10px; }
+        .footer { height: 60px; display: flex; align-items: center; justify-content: center; background: #FFCCAA; border-top: 1px solid #333; padding: 0 10px; }
         #download-btn { background: #0e639c; width: 100%; max-width: 400px; height: 40px; font-size: 14px; }
 
-        /* Ace */
         .ace_invisible_tab { color: rgba(255, 255, 255, 0.2) !important; }
         .ace_invisible_eol { display: inline !important; position: relative !important; width: 0 !important; color: transparent !important; }
         .ace_invisible_eol::after { content: "⏎"; position: absolute; left: 2px; color: rgba(255, 255, 255, 0.15); visibility: visible; font-family: 'JetBrains Mono', monospace; }
@@ -51,13 +49,10 @@
         .ace_yaml-sep, .ace_yaml-list-marker { color: #c586c0 !important; font-weight: bold; }
         .ace_yaml-key { color: #9cdcfe !important; }
         .ace_yaml-val-str { color: #ce9178 !important; }
-        footer{
-          color:#666;
-          font-size:12px;
-          height:20px;
-          line-height: 20px;
-          vertical-align: middle;
-          text-align: center;
+        
+        footer {
+          color:#666; font-size:12px; height:20px; line-height: 20px;
+          vertical-align: middle; text-align: center; background-color:#FFCCAA;
         }
 
         @media screen and (max-width: 768px) {
@@ -97,10 +92,12 @@
     </div>
     <footer>(c)2026 by D.F.Mac.@TripArts Music</footer>
 </div>
+
 <script>
-    // --- オプション設定 ---
-    const isEnableYamlImage = false; // true にするとYAML画像管理が有効になります
-    // ---------------------
+    // --- クエリパラメータによるオプション設定 ---
+    const params = new URLSearchParams(window.location.search);
+    const isEnableYamlImage = params.get('yamlimage') === 'true'; 
+    // ------------------------------------------
 
     let mdFiles = new Map();
     let yamlFiles = new Map();
@@ -254,10 +251,9 @@ tags:
     document.getElementById("md-upload-btn").onclick = () => document.getElementById("md-image-input").click();
     document.getElementById("md-image-input").onchange = (e) => Array.from(e.target.files).forEach(insertMdImage);
     
-    document.getElementById("yaml-upload-btn").onclick = () => document.getElementById("yaml-image-input").click();
-    document.getElementById("yaml-upload-btn").addEventListener('click', () => {
+    document.getElementById("yaml-upload-btn").onclick = () => {
         if(isEnableYamlImage) document.getElementById("yaml-image-input").click();
-    });
+    };
     document.getElementById("yaml-image-input").onchange = (e) => Array.from(e.target.files).forEach(addYamlImage);
 
     const editorDiv = document.getElementById("editor");
