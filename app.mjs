@@ -15,7 +15,7 @@ import config from "./config.mjs";
 const fsp = fs.promises;
 const dirname = path.dirname(new URL(import.meta.url).pathname);
 const LISTEN_IP = "127.0.0.1";
-const LISTEN_PORT = 3550;
+const LISTEN_PORT = config.PORT;
 
 const ROOT_PATH = process.cwd();
 const STAGING_WWW_PATH = path.join(ROOT_PATH,config.WWW_DIR,config.STAGING_DIR);

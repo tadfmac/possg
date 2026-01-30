@@ -1,4 +1,5 @@
 const config = {
+  "PORT":3350,
   "WWW_DIR" : "www",
   "CONTENT_DIR" : "contents",
   "STAGING_DIR" : "staging",
