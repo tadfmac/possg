@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
 <% if (meta.tags) { %>
 <meta name="keywords" content="<%= meta.tags.join(', ') %>">
 <% } %>
@@ -105,7 +106,20 @@ figure figcaption {
   font-size: 0.85em;
   color: #666;
 }
+.separator::before {
+  content: "";
+}
+.possgCredit {
+  display: block;
+}
 @media screen and (min-width: 768px) {
+  .separator::before {
+    content: "/";
+    margin: 0 0.5em;
+  }
+  .possgCredit {
+    display: inline;
+  }
   .layout { 
     display: flex;
     min-height: 100vh;
@@ -174,7 +188,7 @@ figure figcaption {
     <% } %>
   </nav>
 </div>
-<footer><%= footertext %> / gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></footer>
+<footer><%= footertext %><span class="separator"></span><span class="possgCredit">gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></span></footer>
 
 <% if (gaid) { %>
   <!-- Google Analytics -->

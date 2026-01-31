@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
 <title><%= blogtitle %></title>
 <style>
 *{
@@ -102,17 +103,45 @@ footer {
   text-decoration: none;
   color: inherit;
 }
+.separator::before {
+  content: "";
+}
+.possgCredit {
+  display: block;
+}
+
 @media screen and (min-width: 680px) {
+  .separator::before {
+    content: "/";
+    margin: 0 0.5em;
+  }
+  .possgCredit {
+    display: inline;
+  }
   .listSize { 
     width:640px;
   }
 }
 @media screen and (min-width: 1000px) {
+  .separator::before {
+    content: "/";
+    margin: 0 0.5em;
+  }
+  .possgCredit {
+    display: inline;
+  }
   .listSize { 
     width:960px;
   }
 }
 @media screen and (min-width: 1320px) {
+  .separator::before {
+    content: "/";
+    margin: 0 0.5em;
+  }
+  .possgCredit {
+    display: inline;
+  }
   .listSize { 
     width:1280px;
   }
@@ -152,7 +181,7 @@ footer {
     </a>
   <% } %>
 </nav>
-<footer><%= footertext %> / gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></footer>
+<footer><%= footertext %><span class="separator"></span><span class="possgCredit">gen with <a class="nohighlight" href="https://github.com/tadfmac/possg"><strong>possg</strong></a></span></footer>
 
 <% if (gaid) { %>
   <!-- Google Analytics -->
