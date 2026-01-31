@@ -10,6 +10,7 @@ const config = {
   "CONTENT_URL_BASE" : "/",
   "TEMPLATE_DIR" : "template",
   "TEMPLATE_FILE_NAME" : "content-template.ejs",
+  "IDX_TEMPLATE_FILE_NAME" : "index-template.ejs",
   "frontmatter": {
     "core": {
       "title": {
