@@ -12,6 +12,7 @@ const POSSG_ROOT = __dirname;
 // assets
 const SAMPLE_CONFIG = path.join(POSSG_ROOT, "config.example.mjs");
 const TEMPLATE_DIR = path.join(POSSG_ROOT, "template");
+const EXAMPLES_DIR = path.join(POSSG_ROOT, "examples");
 const APP_NAME = "app.mjs";
 const APP_PATH = path.join(POSSG_ROOT,APP_NAME);
 const PACKAGE_NAME = "package.json";
@@ -60,15 +61,16 @@ class InitApp{
     const dbRoot = path.join(outDir, config.DB_DIR);
     const tmpRoot = path.join(outDir, config.TMP_DIR);
     const templateRoot = path.join(outDir, config.TEMPLATE_DIR);
+    const examplesPath = path.join(outDir, "examples");
 
     await fs.ensureDir(dbRoot);
     await fs.ensureDir(tmpRoot);
     await fs.ensureDir(templateRoot);
 
     await fs.copy(TEMPLATE_DIR, templateRoot);
-
     await fs.copy(APP_PATH,path.join(outDir,APP_NAME));
     await fs.copy(PACKAGE_PATH,path.join(outDir,PACKAGE_NAME));
+    await fs.copy(EXAMPLES_PATH,examplesPath);
 
     const gitignore = GITIGNORE;
 
