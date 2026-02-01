@@ -36,7 +36,10 @@ const config = {
   "BLOGTITLE": "シンプルBlog",
   "FOOTERTEXT": "type your credit",
   "BLOGDESC": "ここは秘密のBlogです。",
-  "INDEX_PAGE_SIZE":10
+  "INDEX_PAGE_SIZE":10,
+  "ICON_URL":"/img/icon.png",
+  "RETURN_URL":"/",
+  "RETURN_TEXT":"Top page"
 };
 
 export default config;
