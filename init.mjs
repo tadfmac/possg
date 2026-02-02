@@ -70,7 +70,7 @@ class InitApp{
     await fs.copy(TEMPLATE_DIR, templateRoot);
     await fs.copy(APP_PATH,path.join(outDir,APP_NAME));
     await fs.copy(PACKAGE_PATH,path.join(outDir,PACKAGE_NAME));
-    await fs.copy(EXAMPLES_PATH,examplesPath);
+    await fs.copy(EXAMPLES_DIR,examplesPath);
 
     const gitignore = GITIGNORE;
 
