@@ -234,7 +234,7 @@ tags:
         }
         
         // 厳密なインデント: - の前に2つ、alt/captionの前に4つ
-        const entry = `  - ${safeName}\n    alt : ""\n    caption : ""`;
+        const entry = `  - name : ${safeName}\n    alt : ""\n    caption : ""`;
         
         if (firstSep !== -1 && secondSep !== -1) {
             let yamlLines = lines.slice(firstSep + 1, secondSep);
