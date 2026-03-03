@@ -39,7 +39,11 @@ const config = {
   "INDEX_PAGE_SIZE":10,
   "ICON_URL":"/img/icon.png",
   "RETURN_URL":"/",
-  "RETURN_TEXT":"Top page"
+  "RETURN_TEXT":"Top page",
+  "THUMBNAIL":{
+    "width":400,
+    "height":300
+  }
 };
 
 export default config;
