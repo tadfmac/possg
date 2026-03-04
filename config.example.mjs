@@ -3,6 +3,8 @@ const config = {
   "WWW_DIR" : "www",
   "CONTENT_DIR" : "contents",
   "STAGING_DIR" : "staging",
+  "CUSTOMFUNC_DIR" : "customfunc",
+  "CUSTOMFUNC_FILE_NAME" : "customfunc.mjs",
   "TMP_DIR" : ".tmp",
   "DB_DIR" : "db",
   "DB_FILE_NAME" : "articles.db",
@@ -43,7 +45,8 @@ const config = {
   "THUMBNAIL":{
     "width":400,
     "height":300
-  }
+  },
+  "RELEASE_FEATURE":true
 };
 
 export default config;

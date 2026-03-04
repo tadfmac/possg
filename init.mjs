@@ -11,8 +11,12 @@ const POSSG_ROOT = __dirname;
 
 // assets
 const SAMPLE_CONFIG = path.join(POSSG_ROOT, "config.example.mjs");
+
+// todo : 下記3Dir名が決め打ち。config.example.mjs の内容を読み込んでコピーに変更予定
 const TEMPLATE_DIR = path.join(POSSG_ROOT, "template");
 const EXAMPLES_DIR = path.join(POSSG_ROOT, "examples");
+const CUSTOMFUNC_DIR = path.join(POSSG_ROOT, "customfunc");
+
 const APP_NAME = "app.mjs";
 const APP_PATH = path.join(POSSG_ROOT,APP_NAME);
 const PACKAGE_NAME = "package.json";
@@ -42,10 +46,10 @@ class InitApp{
     if (await fs.pathExists(outDir)) {
       const files = await fs.readdir(outDir);
       const visible = files.filter(f => !IGNORE_FILES.has(f));
-      if (visible.length > 0) {
-        console.error(`Directory is not empty: ${outDir}`);
-        return;
-      }
+//      if (visible.length > 0) {
+//        console.error(`Directory is not empty: ${outDir}`);
+//        return;
+//      }
     }
 
     console.log(`Initializing possg site at: ${outDir}`);
@@ -62,15 +66,18 @@ class InitApp{
     const tmpRoot = path.join(outDir, config.TMP_DIR);
     const templateRoot = path.join(outDir, config.TEMPLATE_DIR);
     const examplesPath = path.join(outDir, "examples");
+    const customFuncRoot = path.join(outDir, config.CUSTOMFUNC_DIR);
 
     await fs.ensureDir(dbRoot);
     await fs.ensureDir(tmpRoot);
     await fs.ensureDir(templateRoot);
+    await fs.ensureDir(customFuncRoot);
 
     await fs.copy(TEMPLATE_DIR, templateRoot);
     await fs.copy(APP_PATH,path.join(outDir,APP_NAME));
     await fs.copy(PACKAGE_PATH,path.join(outDir,PACKAGE_NAME));
     await fs.copy(EXAMPLES_DIR,examplesPath);
+    await fs.copy(CUSTOMFUNC_DIR, customFuncRoot);
 
     const gitignore = GITIGNORE;
 

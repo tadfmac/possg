@@ -26,6 +26,7 @@ function usage() {
   console.log(`
 Usage:
   possg init <target dir>
+  possg createroute
   possg import <zip>
   possg publish <key>
   possg unpublish <key>
