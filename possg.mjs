@@ -88,6 +88,9 @@ try {
       if (!zip) usage();
 
       const conf = await loadConfig();
+
+console.dir(conf);
+
       core = await getCore(conf);
       await core.import(zip);
       console.log(`✔ imported: ${zip}`);

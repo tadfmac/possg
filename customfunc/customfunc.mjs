@@ -5,4 +5,4 @@ class customFunc{
   // add your functions
 }
 
-export default neww customFunc();
+export default customFunc;
