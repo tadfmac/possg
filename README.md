@@ -22,6 +22,7 @@ cd ..
 ```
 git clone https://github.com/tadfmac/possg.git
 cd possg
+npm link possg-core
 npm i
 npm link
 cd ..
