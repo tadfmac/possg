@@ -1,6 +1,6 @@
 {
   "name": "possg",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A very simple SSG for blog",
   "type": "module",
   "main": "app.mjs",
@@ -18,7 +18,8 @@
     "config.example.mjs",
     "template",
     "customfunc",
-    "examples"
+    "examples",
+    "README-JP.md"
   ],
   "repository": {
     "type": "git",

@@ -1,30 +1,32 @@
 # possg
 
-BLOG向けのシンプルなSSGです。
+[日本語](./README-JP.md)
 
-## 特徴
+A simple SSG for blogs.
 
-- `import`: zipファイルまたはフォルダで記事を入稿
-- `publish` / `unpublish`: 下書き(staging)⇔公開(content)の切り替え
-- `buildall`: テンプレート修正後の全記事一括再生成
-- タグ機能: frontmatterの`tags`から絞り込みindexページを自動生成
-- コードブロックのシンタックスハイライト([highlight.js](https://highlightjs.org/))
-- `genviewer`: 記事(zip)をブラウザにドラッグ&ドロップするだけでプレビューできるHTMLを生成
-- `version`: possg / possg-coreのバージョン表示
+## Features
 
-## 導入（開発中のため暫定）
+- `import`: bring in articles via a zip file or a folder
+- `publish` / `unpublish`: toggle an article between draft (staging) and published (content)
+- `buildall`: bulk-regenerate all articles after a template change
+- Tag feature: automatically generates filtered index pages from an article's frontmatter `tags`
+- Syntax highlighting for code blocks ([highlight.js](https://highlightjs.org/))
+- `genviewer`: generates HTML that lets you preview an article (zip) just by dragging and dropping it into the browser
+- `version`: shows the current version of possg / possg-core
 
-まだ開発中なので、いろいろ変わります！
+## Installation (Provisional — Still Under Development)
 
-### 1. possg のインストール
+Still under active development, so things will keep changing!
+
+### 1. Install possg
 
 ```
 npm install -g possg
 ```
 
-これで`possg`コマンドが使えるようになります(`possg-core`も依存パッケージとして自動的にインストールされます)。
+This makes the `possg` command available (`possg-core` is also installed automatically as a dependency).
 
-コマンド実行できたら成功
+If the command runs, you're all set:
 ```
 possg
 
@@ -41,9 +43,9 @@ Usage:
   possg version
 ```
 
-**開発に参加する場合(ソースから利用する場合)**
+**If you want to contribute (working from source)**
 
-possg / possg-core本体のコードを直接修正しながら試したい場合は、`npm link`でローカルのソースを直接参照させることができます。
+If you want to try modifying the possg / possg-core code directly, you can use `npm link` to have your local source referenced directly.
 
 ```
 git clone https://github.com/tadfmac/possg-core.git
@@ -60,10 +62,9 @@ npm link .
 cd ..
 ```
 
-### 2. 環境構築
+### 2. Set Up Your Environment
 
-ワークディレクトリを設定します。
-任意のディレクトリ ここでは例として `work` を作成します。
+Set up a working directory. Here we'll create one called `work` as an example.
 
 ```
 mkdir work
@@ -71,38 +72,38 @@ cd work
 possg init .
 ```
 
-これで必要なファイルの一部が `work` 内に生成されます(`config.mjs` / `template/` / `customfunc/` / `db/` / `examples/` など)。
+This generates some of the files you need inside `work` (`config.mjs` / `template/` / `customfunc/` / `db/` / `examples/`, etc.).
 
-### 3. config.mjs を編集
+### 3. Edit config.mjs
 
-タイトルなどblog用の設定を行います。
-コンテンツを生成するフォルダパス等の設定を行います(利用可能な設定項目は[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README.md#主なconfigmjsキー)を参照)。
+Configure blog-related settings such as the title.
+Configure the folder paths where content gets generated, and so on (see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#main-configmjs-keys) for the available settings).
 
 ```
 possg createroute
 ```
 
-を実行すると `config.mjs` に設定したディレクトリを追加で生成します。
+Running this additionally generates the directories configured in `config.mjs`.
 
-### 4. .env の生成とwebサーバ起動（オプション）
+### 4. Generate .env and Start the Web Server (Optional)
 
-possgにビルトインされたwebサーバを利用する場合は追加で下記設定を行なってください。
+If you want to use possg's built-in web server, do the following extra setup.
 
-stagingルートにはbasic認証パスワードがかかっています。
-これを `.env` に設定します。
+The staging root is protected by a basic-auth password.
+Set this up in `.env`.
 
 ```
 cd possg
 touch .env
 ```
 
-下記のような内容で `.env` を保存してください。
+Save `.env` with content like this:
 ```
 BASIC_USER=<username>
 BASIC_PASS=<password>
 ```
 
-その後、下記コマンドでサーバーを起動します。
+Then start the server with:
 
 ```
 cd work
@@ -110,99 +111,99 @@ npm i
 npm start
 ```
 
-possg は 単なる htmlファイルジェネレータとしても利用可能です。
-その場合は生成されたファイルを別途任意のwebサーバがホスティングできる httpdoc などにおいてホスティングしてください。
+possg can also be used as a plain HTML file generator.
+In that case, host the generated files yourself on any web server that can serve static files, such as httpdocs.
 
-### 5. template を修正する
+### 5. Edit the Template
 
-`/template` 配下に下記ファイルのサンプルが置いてあります。
+Sample versions of the following files are placed under `/template`.
 
-- `content-template.ejs` 記事ページのテンプレート
-- `index-template.ejs` インデックスページのテンプレート
-- `possg.css` 上記2つのテンプレートが読み込むスタイルシート(`config.mjs`の`CSS_URL`で読み込みURLを指定)
-- `possg.js` コードブロックのコピーボタン用スクリプト(`JS_URL`で読み込みURLを指定)
+- `content-template.ejs` — the article page template
+- `index-template.ejs` — the index page template
+- `possg.css` — the stylesheet loaded by both templates above (the URL it's loaded from is set via `CSS_URL` in config.mjs)
+- `possg.js` — the script that powers the code block's copy button (loaded from the URL set via `JS_URL`)
 
-適宜カスタマイズしてご利用ください。`possg/template/`がマスターで、init時に各アプリの`template/`へコピーされたもの(それ以降は自動同期されないので、両方直す場合は手動で反映してください)。
+Customize these as you like. `possg/template/` is the master copy, and it gets copied into each app's `template/` at init time (it isn't kept in sync automatically after that, so if you want to change both, you'll need to apply the change manually to each).
 
-### 6. サンプル記事のインポート
+### 6. Import the Sample Article
 
-`/examples/20260126.zip` にサンプル記事があります。    
-こちらをHTMLにしてみましょう。
+There's a sample article at `/examples/20260126.zip`.
+Let's turn it into HTML.
 
 ```
 possg import ./examples/20260126.zip
 ```
 
-これで記事ができます。
+This creates the article.
 
-`import`はzipファイルだけでなく、`index.md`と画像を含んだ**フォルダを直接指定**することもできます(zipを解凍したフォルダをそのまま指定できます)。
+`import` accepts not just zip files but also **a folder specified directly**, containing `index.md` and images (you can point it at the unzipped folder as-is).
 
 ```
 unzip ./examples/20260126.zip -d ./examples/
 possg import ./examples/20260126
 ```
 
-### 7. サンプル記事の確認
+### 7. Check the Sample Article
 
-ブラウザで、`http://localhost:3550/staging/` にアクセスしてみてください。(`.env` に指定した id / pass の入力が必要)    
+Try visiting `http://localhost:3550/staging/` in your browser. (You'll need to enter the id/pass you set in `.env`.)
 
-記事1つだけのリンクが表示されたインデックスページが表示されているはずです。
+You should see an index page with a link to just the one article.
 
-### 8. サンプル記事の修正や追加
+### 8. Edit or Add Sample Articles
 
-`/examples/20260126.zip` を解凍すると、`index.md` が含まれています。    
-こちらを修正後、再度 zip 圧縮するか、フォルダのまま再度 import すれば記事の書き換えができます。    
+Unzipping `/examples/20260126.zip` gives you `index.md`.
+Edit it, then either zip it back up or re-import it as a folder, and the article gets rewritten.
 
-また、フォルダやzipをコピーしてリネームし(zipの場合はファイル名、フォルダの場合はフォルダ名がkeyになります)、`index.md` を書き換えた後に import すれば別の記事を追加できます。    
+You can also copy and rename the folder or zip (for a zip the filename becomes the key, for a folder it's the folder name), edit `index.md`, and import it to add a different article.
 
-### 9. 記事の公開・非公開
+### 9. Publish / Unpublish an Article
 
-`import` した記事は下書き(staging)状態です。公開するには:
+An imported article starts out in draft (staging) state. To publish it:
 
 ```
 possg publish 20260126
 ```
 
-公開を取り消して下書きに戻すには:
+To un-publish it and move it back to draft:
 
 ```
 possg unpublish 20260126
 ```
 
-### 10. 記事の削除
+### 10. Delete an Article
 
-import した記事の削除を行う場合は、下記コマンドでOK
-さきほど import した `20260126.zip` の記事を削除する場合、`.zip` を除いたファイル名(またはフォルダ名) `20260126` を指定します。
+To delete an imported article, just run the command below.
+To delete the article you imported earlier as `20260126.zip`, specify the filename (or folder name) without the `.zip`, i.e. `20260126`.
 
 ```
 possg remove 20260126
 ```
 
-### 11. テンプレート修正後の記事再生成
+### 11. Regenerate Articles After a Template Change
 
-テンプレートを修正した後などで import 済みの全ての HTML を再生成するには下記コマンドを実行します。    
+To regenerate the HTML for every imported article — for example after changing a template — run:
 
 ```
 possg buildall
 ```
 
-## タグ機能
+## Tag Feature
 
-記事のfrontmatterに`tags`を指定すると、タグごとに絞り込まれた記事一覧ページが自動生成されます。
+Specifying `tags` in an article's frontmatter automatically generates an article-list page filtered by that tag.
 
 ```yaml
 ---
-title: 記事タイトル
+title: Article title
 datetime: "20260101 12:00"
-tags: ["グルメ", "横浜"]
+tags: ["food", "Yokohama"]
 ---
 ```
 
-利用するには`config.mjs`の`frontmatter.meta`に`tags`のスキーマ定義が必要です(`config.example.mjs`に定義例あり)。定義していないアプリではタグ機能自体が生成されません。
+To use this, you need a `tags` schema defined under `frontmatter.meta` in `config.mjs` (see `config.example.mjs` for an example definition). On apps that don't define it, the tag feature itself isn't generated at all.
 
-## シンタックスハイライト
+## Syntax Highlighting
 
-記事本文のコードブロックで言語を指定すると、自動的に色付けされます。
+Specify a language on a code block in your article body, and it gets colorized automatically.
 
 ````markdown
 ```javascript
@@ -210,27 +211,27 @@ const hello = () => console.log("hi");
 ```
 ````
 
-## 記事プレビュー(genviewer)
+## Article Preview (genviewer)
 
-`import`する前のzip記事を、実際のテンプレート・スタイルでどう表示されるか確認したい場合は`genviewer`を使います。
+If you want to check how a zip article would render with the real template and styles before actually `import`-ing it, use `genviewer`.
 
 ```
 possg genviewer
 ```
 
-を実行すると、ワークディレクトリ直下に`viewer.html`が生成されます。これをブラウザで開き(ダブルクリックで`file:///`として開いても、Webサーバでホスティングしても動作します)、zipファイルをドラッグ&ドロップすると、その場でレンダリング結果がプレビューされます。「リロード」ボタンで直前にドロップしたファイルの更新内容を再読み込みできます(Chromium系ブラウザのみ)。
+Running this generates `viewer.html` directly under your working directory. Open it in a browser — double-clicking to open it as `file:///` works, and so does hosting it on a web server — and dragging and dropping a zip file onto it previews the rendered result right there. The "Reload" button reloads whatever changes were made to the last file you dropped (Chromium-based browsers only).
 
-**注意**: テンプレートがApacheのSSI(`<!--#include virtual="...">`)を使っている場合、SSI部分は`fetch()`で解決するため、`file:///`として開くとブラウザのfetch制限によりSSI部分だけ解決されません(それ以外は問題なく動作します)。SSIを使うテンプレートで完全に動作確認したい場合は、`viewer.html`をWebサーバでホスティングしてアクセスしてください。
+**Note**: if the template uses Apache SSI (`<!--#include virtual="...">`), the SSI part is resolved via `fetch()`, so opening it as `file:///` will leave just that part unresolved due to the browser's fetch restrictions (everything else works fine). If you want to fully verify a template that uses SSI, host `viewer.html` on a web server and access it that way.
 
-テンプレートが外部CDNライブラリ(jQuery/カルーセルライブラリ等)に依存している場合の対応方法は、[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer記事プレビュー)を参照してください(`customfunc.mjs`側で設定します)。SSIは自動検出されるため設定不要です。
+For how to handle a template that depends on an external CDN library (jQuery, a carousel library, etc.), see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) (you configure this on the `customfunc.mjs` side). SSI needs no configuration at all, since it's auto-detected.
 
-## バージョン確認
+## Checking the Version
 
 ```
 possg version
 ```
 
-`possg` / `possg-core` それぞれの現在のバージョンを表示します。
+Shows the current version of `possg` and `possg-core` respectively.
 
 ## LICENSE
 
