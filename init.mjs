@@ -20,7 +20,9 @@ const CUSTOMFUNC_DIR = path.join(POSSG_ROOT, "customfunc");
 const APP_NAME = "app.mjs";
 const APP_PATH = path.join(POSSG_ROOT,APP_NAME);
 const PACKAGE_NAME = "package.json";
-const PACKAGE_PATH = path.join(POSSG_ROOT,PACKAGE_NAME);
+// possg自身のpackage.jsonではなく、生成される作業ディレクトリ(app.mjs実行用)専用のテンプレート。
+// possg-core等CLI側だけに必要な依存が生成先に混入するのを防ぐため別ファイルにしている。
+const INIT_PACKAGE_PATH = path.join(POSSG_ROOT, "init-package.json");
 
 const IGNORE_FILES = new Set([
   ".DS_Store",
@@ -75,7 +77,7 @@ class InitApp{
 
     await fs.copy(TEMPLATE_DIR, templateRoot);
     await fs.copy(APP_PATH,path.join(outDir,APP_NAME));
-    await fs.copy(PACKAGE_PATH,path.join(outDir,PACKAGE_NAME));
+    await fs.copy(INIT_PACKAGE_PATH,path.join(outDir,PACKAGE_NAME));
     await fs.copy(EXAMPLES_DIR,examplesPath);
     await fs.copy(CUSTOMFUNC_DIR, customFuncRoot);
 

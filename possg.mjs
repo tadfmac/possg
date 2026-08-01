@@ -4,7 +4,7 @@ import PossgCore from "possg-core";
 import InitApp from "./init.mjs";
 import path from "path";
 import fs from "fs-extra";
-import { pathToFileURL } from "url";
+import { pathToFileURL, fileURLToPath } from "url";
 
 const initApp = new InitApp();
 
@@ -34,8 +34,26 @@ Usage:
   possg removeall
   possg buildall
   possg genviewer
+  possg version
 `);
   process.exit(1);
+}
+
+async function readPackageVersion(packageJsonPath) {
+  const pkg = JSON.parse(await fs.readFile(packageJsonPath, "utf8"));
+  return pkg.version;
+}
+
+async function getVersions() {
+  const possgPkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "package.json");
+  const possgCorePkgPath = path.join(
+    path.dirname(fileURLToPath(import.meta.resolve("possg-core"))),
+    "package.json"
+  );
+  return {
+    possg: await readPackageVersion(possgPkgPath),
+    possgCore: await readPackageVersion(possgCorePkgPath)
+  };
 }
 
 function confirm(msg) {
@@ -172,6 +190,16 @@ console.dir(conf);
       const viewerCore = new PossgCore(conf);
       const outPath = await viewerCore.genViewer();
       console.log(`✔ viewer generated: ${outPath}`);
+      break;
+    }
+
+    /* ----- version ----- */
+    case "version":
+    case "--version":
+    case "-v": {
+      const versions = await getVersions();
+      console.log(`possg: ${versions.possg}`);
+      console.log(`possg-core: ${versions.possgCore}`);
       break;
     }
     default:

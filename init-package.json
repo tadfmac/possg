@@ -1,0 +1,18 @@
+{
+  "name": "possg-site",
+  "version": "0.1.0",
+  "description": "A possg-powered blog site",
+  "type": "module",
+  "main": "app.mjs",
+  "scripts": {
+    "start": "node ./app.mjs"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "basic-auth": "^2.0.1",
+    "cors": "^2.8.5",
+    "date-utils": "^1.2.21",
+    "dotenv": "^17.2.3",
+    "express": "^4.18.1"
+  }
+}
