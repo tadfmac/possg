@@ -3,6 +3,7 @@ const config = {
   "WWW_DIR" : "www",
   "CONTENT_DIR" : "contents",
   "STAGING_DIR" : "staging",
+  "TAGS_DIR" : "tags",
   "CUSTOMFUNC_DIR" : "customfunc",
   "CUSTOMFUNC_FILE_NAME" : "customfunc.mjs",
   "TMP_DIR" : ".tmp",
@@ -40,6 +41,8 @@ const config = {
   "BLOGDESC": "ここは秘密のBlogです。",
   "INDEX_PAGE_SIZE":10,
   "ICON_URL":"/img/icon.png",
+  "CSS_URL":"/possg.css",
+  "JS_URL":"/possg.js",
   "RETURN_URL":"/",
   "RETURN_TEXT":"Top page",
   "THUMBNAIL":{

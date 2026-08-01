@@ -27,12 +27,13 @@ function usage() {
 Usage:
   possg init <target dir>
   possg createroute
-  possg import <zip>
+  possg import <zip|folder>
   possg publish <key>
   possg unpublish <key>
   possg remove <key>
   possg removeall
   possg buildall
+  possg genviewer
 `);
   process.exit(1);
 }
@@ -84,16 +85,16 @@ try {
 
     /* ----- import ----- */
     case "import": {
-      const zip = args[0];
-      if (!zip) usage();
+      const src = args[0];
+      if (!src) usage();
 
       const conf = await loadConfig();
 
 console.dir(conf);
 
       core = await getCore(conf);
-      await core.import(zip);
-      console.log(`✔ imported: ${zip}`);
+      await core.import(src);
+      console.log(`✔ imported: ${src}`);
       break;
     }
 
@@ -162,6 +163,15 @@ console.dir(conf);
       core = await getCore(conf);
       await core.buildAll();
       console.log("✔ all html rebuilt");
+      break;
+    }
+
+    /* ----- genviewer ----- */
+    case "genviewer": {
+      const conf = await loadConfig();
+      const viewerCore = new PossgCore(conf);
+      const outPath = await viewerCore.genViewer();
+      console.log(`✔ viewer generated: ${outPath}`);
       break;
     }
     default:
