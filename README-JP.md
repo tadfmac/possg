@@ -11,7 +11,7 @@ BLOG向けのシンプルなSSGです。
 - `buildall`: テンプレート修正後の全記事一括再生成
 - タグ機能: frontmatterの`tags`から絞り込みindexページを自動生成
 - コードブロックのシンタックスハイライト([highlight.js](https://highlightjs.org/))
-- `genviewer`: 記事(zip)をブラウザにドラッグ&ドロップするだけでプレビューできるHTMLを生成
+- `genviewer`: 記事(zipまたはフォルダ)をブラウザにドラッグ&ドロップするだけでプレビューできるHTMLを生成
 - `version`: possg / possg-coreのバージョン表示
 
 ## 導入（開発中のため暫定）
@@ -39,7 +39,7 @@ Usage:
   possg remove <key>
   possg removeall
   possg buildall
-  possg genviewer
+  possg genviewer [-static]
   possg version
 ```
 
@@ -214,17 +214,25 @@ const hello = () => console.log("hi");
 
 ## 記事プレビュー(genviewer)
 
-`import`する前のzip記事を、実際のテンプレート・スタイルでどう表示されるか確認したい場合は`genviewer`を使います。
+`import`する前のzipファイルまたはフォルダの記事を、実際のテンプレート・スタイルでどう表示されるか確認したい場合は`genviewer`を使います。
 
 ```
 possg genviewer
 ```
 
-を実行すると、ワークディレクトリ直下に`viewer.html`が生成されます。これをブラウザで開き(ダブルクリックで`file:///`として開いても、Webサーバでホスティングしても動作します)、zipファイルをドラッグ&ドロップすると、その場でレンダリング結果がプレビューされます。「リロード」ボタンで直前にドロップしたファイルの更新内容を再読み込みできます(Chromium系ブラウザのみ)。
+を実行すると、ワークディレクトリ直下に`viewer.html`が生成されます。これをブラウザで開き(ダブルクリックで`file:///`として開いても、Webサーバでホスティングしても動作します)、zipファイルまたはフォルダをドラッグ&ドロップすると、その場でレンダリング結果がプレビューされます。「リロード」ボタンで直前にドロップした内容の更新を再読み込みできます(Chromium系ブラウザのみ)。フォルダをドロップした場合は特に便利で、「リロード」を押すたびにディスク上のフォルダを毎回スキャンし直すため、`index.md`や画像を編集した内容がzip再圧縮の手間無しでそのまま反映されます。
 
 **注意**: テンプレートがApacheのSSI(`<!--#include virtual="...">`)を使っている場合、SSI部分は`fetch()`で解決するため、`file:///`として開くとブラウザのfetch制限によりSSI部分だけ解決されません(それ以外は問題なく動作します)。SSIを使うテンプレートで完全に動作確認したい場合は、`viewer.html`をWebサーバでホスティングしてアクセスしてください。
 
-テンプレートが外部CDNライブラリ(jQuery/カルーセルライブラリ等)に依存している場合の対応方法は、[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#genviewer記事プレビュー)を参照してください(`customfunc.mjs`側で設定します)。SSIは自動検出されるため設定不要です。
+SSIを含めて`file:///`・オフラインでも完全に動作するバージョンが必要な場合は、下記を実行します。
+
+```
+possg genviewer -static
+```
+
+これは別ファイル`viewer-static.html`を生成します。SSIの内容を閲覧時にfetchするのではなく、生成時に一度だけ解決して埋め込みます(必要な`customfunc.mjs`の設定とトレードオフについては[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#genviewer記事プレビュー)を参照してください)。
+
+テンプレートが外部CDNライブラリ(jQuery/カルーセルライブラリ等)に依存している場合の対応方法は、[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#genviewer記事プレビュー)を参照してください(`customfunc.mjs`側で設定します)。通常モード(非static)ではSSIは自動検出されるため設定不要です。
 
 ## バージョン確認
 

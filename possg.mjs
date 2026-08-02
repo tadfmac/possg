@@ -33,7 +33,7 @@ Usage:
   possg remove <key>
   possg removeall
   possg buildall
-  possg genviewer
+  possg genviewer [-static]
   possg version
 `);
   process.exit(1);
@@ -186,9 +186,10 @@ console.dir(conf);
 
     /* ----- genviewer ----- */
     case "genviewer": {
+      const isStatic = args.includes("-static") || args.includes("--static");
       const conf = await loadConfig();
       const viewerCore = new PossgCore(conf);
-      const outPath = await viewerCore.genViewer();
+      const outPath = await viewerCore.genViewer({ static: isStatic });
       console.log(`✔ viewer generated: ${outPath}`);
       break;
     }

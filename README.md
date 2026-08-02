@@ -11,7 +11,7 @@ A simple SSG for blogs.
 - `buildall`: bulk-regenerate all articles after a template change
 - Tag feature: automatically generates filtered index pages from an article's frontmatter `tags`
 - Syntax highlighting for code blocks ([highlight.js](https://highlightjs.org/))
-- `genviewer`: generates HTML that lets you preview an article (zip) just by dragging and dropping it into the browser
+- `genviewer`: generates HTML that lets you preview an article (zip file or folder) just by dragging and dropping it into the browser
 - `version`: shows the current version of possg / possg-core
 
 ## Installation (Provisional — Still Under Development)
@@ -39,7 +39,7 @@ Usage:
   possg remove <key>
   possg removeall
   possg buildall
-  possg genviewer
+  possg genviewer [-static]
   possg version
 ```
 
@@ -213,17 +213,25 @@ const hello = () => console.log("hi");
 
 ## Article Preview (genviewer)
 
-If you want to check how a zip article would render with the real template and styles before actually `import`-ing it, use `genviewer`.
+If you want to check how a zip file or folder article would render with the real template and styles before actually `import`-ing it, use `genviewer`.
 
 ```
 possg genviewer
 ```
 
-Running this generates `viewer.html` directly under your working directory. Open it in a browser — double-clicking to open it as `file:///` works, and so does hosting it on a web server — and dragging and dropping a zip file onto it previews the rendered result right there. The "Reload" button reloads whatever changes were made to the last file you dropped (Chromium-based browsers only).
+Running this generates `viewer.html` directly under your working directory. Open it in a browser — double-clicking to open it as `file:///` works, and so does hosting it on a web server — and dragging and dropping a zip file or a folder onto it previews the rendered result right there. The "Reload" button reloads whatever changes were made to what you dropped (Chromium-based browsers only). Dropping a folder is especially handy for iterative editing: each "Reload" click re-scans the folder on disk from scratch, so edits to `index.md` or its images show up right away, with no need to re-zip.
 
 **Note**: if the template uses Apache SSI (`<!--#include virtual="...">`), the SSI part is resolved via `fetch()`, so opening it as `file:///` will leave just that part unresolved due to the browser's fetch restrictions (everything else works fine). If you want to fully verify a template that uses SSI, host `viewer.html` on a web server and access it that way.
 
-For how to handle a template that depends on an external CDN library (jQuery, a carousel library, etc.), see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) (you configure this on the `customfunc.mjs` side). SSI needs no configuration at all, since it's auto-detected.
+If you need a version that works fully under `file:///`/offline even with SSI, use:
+
+```
+possg genviewer -static
+```
+
+This generates a separate `viewer-static.html`, with SSI content resolved once and baked in at generation time instead of fetched at view time (see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) for the `customfunc.mjs` setup this requires, and the trade-off involved).
+
+For how to handle a template that depends on an external CDN library (jQuery, a carousel library, etc.), see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) (you configure this on the `customfunc.mjs` side). SSI needs no configuration at all for the regular (non-static) mode, since it's auto-detected.
 
 ## Checking the Version
 
