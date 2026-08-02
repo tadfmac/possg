@@ -34,6 +34,7 @@ Usage:
   possg removeall
   possg buildall
   possg genviewer [-static]
+  possg geneditor [-static] [-title <title>]
   possg version
 `);
   process.exit(1);
@@ -191,6 +192,18 @@ console.dir(conf);
       const viewerCore = new PossgCore(conf);
       const outPath = await viewerCore.genViewer({ static: isStatic });
       console.log(`✔ viewer generated: ${outPath}`);
+      break;
+    }
+
+    /* ----- geneditor ----- */
+    case "geneditor": {
+      const isStatic = args.includes("-static") || args.includes("--static");
+      const titleIdx = args.findIndex((a) => a === "-title" || a === "--title");
+      const title = titleIdx !== -1 ? args[titleIdx + 1] : undefined;
+      const conf = await loadConfig();
+      const editorCore = new PossgCore(conf);
+      const outPath = await editorCore.genEditor({ static: isStatic, title });
+      console.log(`✔ editor generated: ${outPath}`);
       break;
     }
 

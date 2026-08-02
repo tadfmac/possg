@@ -49,6 +49,11 @@ const config = {
     "width":400,
     "height":300
   },
+  "DEFAULT_TRIM":{
+    "width":1280,
+    "height":720
+  },
+  "LANG":"EN",
   "RELEASE_FEATURE":true
 };
 

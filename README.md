@@ -12,6 +12,7 @@ A simple SSG for blogs.
 - Tag feature: automatically generates filtered index pages from an article's frontmatter `tags`
 - Syntax highlighting for code blocks ([highlight.js](https://highlightjs.org/))
 - `genviewer`: generates HTML that lets you preview an article (zip file or folder) just by dragging and dropping it into the browser
+- `geneditor`: generates a self-contained article editor with a live preview (can also load an existing article and save back to it in its original format)
 - `version`: shows the current version of possg / possg-core
 
 ## Installation (Provisional — Still Under Development)
@@ -40,6 +41,7 @@ Usage:
   possg removeall
   possg buildall
   possg genviewer [-static]
+  possg geneditor [-static] [-title <title>]
   possg version
 ```
 
@@ -232,6 +234,14 @@ possg genviewer -static
 This generates a separate `viewer-static.html`, with SSI content resolved once and baked in at generation time instead of fetched at view time (see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) for the `customfunc.mjs` setup this requires, and the trade-off involved).
 
 For how to handle a template that depends on an external CDN library (jQuery, a carousel library, etc.), see [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#genviewer-article-preview) (you configure this on the `customfunc.mjs` side). SSI needs no configuration at all for the regular (non-static) mode, since it's auto-detected.
+
+## Article Editor (geneditor)
+
+```
+possg geneditor
+```
+
+Generates `editor.html`: a self-contained article editor (CodeMirror 6-based) with a live preview, built on the same rendering engine as `genviewer`. The starting YAML frontmatter is generated from your `frontmatter` schema instead of a generic template, images you upload or drop show up in the live preview immediately, and you can drag and drop an existing zip/folder article onto it to load it for editing. A "Save As" button lets you pick a destination folder or ZIP file to save to (Chromium-based browsers only); once a save location is set (by loading an existing article or via "Save As"), a "Save" button writes back to that same location. "Download ZIP" is always available as a simple no-picker fallback. The interface defaults to English, with a Japanese option in the gear menu (remembered via `localStorage`). `possg geneditor -static` is also available, with the same SSI/`file:///` trade-off as `genviewer -static`; `-title <title>` overrides the page title/header text. See [possg-core's README](https://github.com/tadfmac/possg-core/blob/main/README.md#geneditor-article-editor) for details.
 
 ## Checking the Version
 

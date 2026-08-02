@@ -12,6 +12,7 @@ BLOG向けのシンプルなSSGです。
 - タグ機能: frontmatterの`tags`から絞り込みindexページを自動生成
 - コードブロックのシンタックスハイライト([highlight.js](https://highlightjs.org/))
 - `genviewer`: 記事(zipまたはフォルダ)をブラウザにドラッグ&ドロップするだけでプレビューできるHTMLを生成
+- `geneditor`: ライブプレビュー付きの自己完結型記事エディタを生成(既存記事の読み込み・同形式での上書き保存にも対応)
 - `version`: possg / possg-coreのバージョン表示
 
 ## 導入（開発中のため暫定）
@@ -40,6 +41,7 @@ Usage:
   possg removeall
   possg buildall
   possg genviewer [-static]
+  possg geneditor [-static] [-title <title>]
   possg version
 ```
 
@@ -233,6 +235,14 @@ possg genviewer -static
 これは別ファイル`viewer-static.html`を生成します。SSIの内容を閲覧時にfetchするのではなく、生成時に一度だけ解決して埋め込みます(必要な`customfunc.mjs`の設定とトレードオフについては[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#genviewer記事プレビュー)を参照してください)。
 
 テンプレートが外部CDNライブラリ(jQuery/カルーセルライブラリ等)に依存している場合の対応方法は、[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#genviewer記事プレビュー)を参照してください(`customfunc.mjs`側で設定します)。通常モード(非static)ではSSIは自動検出されるため設定不要です。
+
+## 記事エディタ(geneditor)
+
+```
+possg geneditor
+```
+
+`genviewer`と同じレンダリングエンジンを使ったライブプレビュー付きの自己完結型記事エディタ(CodeMirror 6ベース)`editor.html`を生成します。初期表示のYAML frontmatterは汎用テンプレートではなくアプリの`frontmatter`スキーマから生成され、アップロード・ドロップした画像はその場でプレビューに反映され、既存のzip/フォルダ記事をドラッグ&ドロップして編集用に読み込むこともできます。「名前を付けて保存」ボタンで保存先のフォルダ・ZIPファイルを選べ(Chromium系ブラウザ限定)、保存先が決まった後(既存記事の読み込み時、または「名前を付けて保存」実行後)は「保存」ボタンで同じ場所に素早く上書き保存できます。「ZIPをダウンロード」は保存先を選ばないシンプルな代替手段として常に利用できます。インターフェースの初期値は英語で、歯車メニューから日本語に切り替えられます(`localStorage`に記憶されます)。`genviewer -static`と同じSSI/`file:///`のトレードオフを持つ`possg geneditor -static`も利用できます。`-title <title>`でページタイトル・ヘッダ表示テキストを差し替えられます。詳細は[possg-coreのREADME](https://github.com/tadfmac/possg-core/blob/main/README-JP.md#geneditor記事エディタ)を参照してください。
 
 ## バージョン確認
 
