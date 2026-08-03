@@ -206,6 +206,9 @@ document.getElementById("clearBtn").addEventListener("click", () => {
 });
 
 // ---------------- Crop Rect ----------------
+// 画像が無い状態でのプレビュー用に、出力サイズをそのままワークスペースに表示した
+// ボックスを返す。画像が読み込まれている場合はfitImageToCrop()側で実画像サイズに
+// 応じて上書きする(出力サイズより小さい画像なら、この関数の結果より縮小される)。
 function updateCropRect() {
   const scaleToCanvas = Math.min(
     canvas.width / clipOutW,
@@ -224,13 +227,33 @@ function updateCropRect() {
 }
 
 // ---------------- Fit Image (cover, no upscale) ----------------
+// ワークスペースの表示倍率(scaleToCanvas)と、実際に画像を拡大するか否かの判定
+// (実画像サイズと出力サイズ clipOutW/clipOutH の比較)を分離する。表示倍率だけで
+// 1と比較してクランプすると、出力サイズがワークスペースより大きい設定の場合に
+// 拡大要否の判定が歪み、小さい画像が意図せず拡大されて出力されてしまうため。
+// - 画像が出力サイズをカバーできる場合: クロップ枠は出力サイズのまま、画像側を
+//   カバー配置に縮小してドラッグする(従来通り)。
+// - 画像が出力サイズより小さい場合: 画像は等倍(拡大しない)のまま、クロップ枠
+//   自体を出力サイズと同じ縦横比を保ちつつ実画像に収まる大きさへ縮小する。
 function fitImageToCrop() {
-  scale = Math.max(
-    cropRect.w / img.width,
-    cropRect.h / img.height
+  const scaleToCanvas = Math.min(
+    canvas.width / clipOutW,
+    canvas.height / clipOutH
   );
-  scale = Math.min(scale, 1);
 
+  const boxScale = Math.min(1, img.width / clipOutW, img.height / clipOutH);
+  const realScale = Math.min(1, Math.max(clipOutW / img.width, clipOutH / img.height));
+
+  const w = clipOutW * boxScale * scaleToCanvas;
+  const h = clipOutH * boxScale * scaleToCanvas;
+  cropRect = {
+    w,
+    h,
+    x: (canvas.width - w) / 2,
+    y: (canvas.height - h) / 2
+  };
+
+  scale = realScale * scaleToCanvas;
   imgX = cropRect.x + (cropRect.w - img.width * scale) / 2;
   imgY = cropRect.y + (cropRect.h - img.height * scale) / 2;
 }
@@ -334,9 +357,16 @@ document.getElementById("cropBtn").addEventListener("click", () => {
 
   const format = getSelectedFormat(); // "jpeg" or "png"
 
+  // 画像がクロップサイズより小さい場合、出力もクロップサイズそのまま(拡大)に
+  // せず、実画像に収まる大きさ(fitImageToCropのboxScaleと同じ計算)に縮小する。
+  // 画像がクロップサイズをカバーできる場合は従来通りクロップサイズちょうどにする。
+  const boxScale = Math.min(1, img.width / clipOutW, img.height / clipOutH);
+  const outW = Math.round(clipOutW * boxScale);
+  const outH = Math.round(clipOutH * boxScale);
+
   const outCanvas = document.createElement("canvas");
-  outCanvas.width = clipOutW;
-  outCanvas.height = clipOutH;
+  outCanvas.width = outW;
+  outCanvas.height = outH;
   const outCtx = outCanvas.getContext("2d");
 
   const srcX = (cropRect.x - imgX) / scale;
@@ -348,14 +378,14 @@ document.getElementById("cropBtn").addEventListener("click", () => {
   if (format === "jpeg") {
     // JPEG は透過不可 → 白で塗る
     outCtx.fillStyle = "#fff";
-    outCtx.fillRect(0, 0, clipOutW, clipOutH);
+    outCtx.fillRect(0, 0, outW, outH);
   }
   // PNG の場合は何もしない（透過のまま）
 
   outCtx.drawImage(
     img,
     srcX, srcY, srcW, srcH,
-    0, 0, clipOutW, clipOutH
+    0, 0, outW, outH
   );
 
   // ---- 保存 ----
